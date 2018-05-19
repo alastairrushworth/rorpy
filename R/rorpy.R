@@ -10,8 +10,10 @@ rorpy <- function(url){
   for(i in 1:length(url)){
     # default prediction is NAs - this only kept if an error reading url
     pred_out <- rep(NA, 3)
-    # attempt to read url
-    x   <- try(read_html(url[i]), silent = T)
+    # try to guess the encoding of the webpage
+    enc <- guess_encoding(url[i])$encoding[1]
+    # attempt to read url using guessed encoding
+    x   <- try(read_html(url[i], encoding = enc), silent = T)
     if(!"try-error" %in% class(x)){
       # combine pre, code and text area tags
       pre_tags  <- html_text(html_nodes(x, "pre"))
