@@ -2,7 +2,7 @@ Package: rorpy
 Type: Package
 Title: R or Python? Simple Classification of Webpages by Code Content
 Version: 0.1
-Date: 2018-03-15
+Date: 2018-12-02
 Depends: R (>= 3.0.0)
 Imports: randomForest, rvest, stringr, tibble, xml2
 Author: Alastair Rushworth
@@ -11,4 +11,3 @@ Description: Classify whether a webpage contains R or Python code.  Uses a simpl
 License: GPL-2
 LazyLoad: yes
 ByteCompile: yes
-Repository: CRAN

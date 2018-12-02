@@ -1,2 +1,3 @@
 export(rorpy)
 import(randomForest, rvest, stringr, tibble, xml2)
+importFrom("utils", "setTxtProgressBar", "txtProgressBar")

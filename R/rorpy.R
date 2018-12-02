@@ -1,10 +1,8 @@
-# function that detects and classifies the code content of a webpage
-
 rorpy <- function(url){
   # number urls 
   n_urls   <- length(url)
   # set the output table format
-  pred_df  <- tibble(r = numeric(), py = numeric(), other = numeric())
+  pred_df  <- tibble::tibble(r = numeric(), py = numeric(), other = numeric())
   # set a progress bar - useful if more than 1 url specified
   if(n_urls > 1) pb  <- txtProgressBar(min = 0, max = n_urls, style = 3)
   # loop over urls one by one
@@ -40,7 +38,7 @@ rorpy <- function(url){
         # count up the number of occurences of the patterns above
         xout           <- as.data.frame(t(str_count(code, items)))
         colnames(xout) <- items
-        pred_out       <- rev(as.numeric(predict(ft, xout, type = "prob")))
+        pred_out       <- rev(as.numeric(randomForest::predict(ft, xout, type = "prob")))
       } else { 
         pred_out       <- rep(0, 3)
       }
