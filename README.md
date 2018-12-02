@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/alastairrushworth/rorpy.svg?branch=master)](https://travis-ci.org/alastairrushworth/rorpy)
+
 # rorpy
 R or Python? Simple Classification of Webpages by Code Content
 
