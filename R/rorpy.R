@@ -38,7 +38,7 @@ rorpy <- function(url){
         # count up the number of occurences of the patterns above
         xout           <- as.data.frame(t(str_count(code, items)))
         colnames(xout) <- items
-        pred_out       <- rev(as.numeric(randomForest::predict(ft, xout, type = "prob")))
+        pred_out       <- rev(as.numeric(predict(ft, xout, type = "prob")))
       } else { 
         pred_out       <- rep(0, 3)
       }
