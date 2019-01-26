@@ -1,8 +1,34 @@
+#' @title R or Python?  Classification of webpages by code content.
+#' @param A character vector of length n containing urls.
+#' @return A tibble containing the probability that the input url contains R 
+#' code (column \code{r}), Python code (column \code{py}) or another code type 
+#' (column \code{other}).  If no code can be found the probability vector will 
+#' be 0.  If there are problems fetching data from a url, the NAs will be returned 
+#' instead of classification probabilities.
+#' @description This function fetches code chunks from a vector of urls (where 
+#' code is assumed to be tagged \code{<pre>}, \code{<code>} or \code{<textarea>}).   
+#' The function uses a pretrained random forest classifier to calculates the 
+#' probability that the code is R, Python or neither.
+#' @examples 
+#' # not run:
+#' # rorpy("https://google.com") # no code here...
+#' # rorpy("http://dplyr.tidyverse.org") # 99\% sure it's R.......  
+#' # rorpy("https://keras.io") # also about 99\% sure it's python
+#' @export
+#' @import randomForest
+#' @importFrom rvest guess_encoding
+#' @importFrom stats predict
+#' @importFrom tibble tibble
+#' @importFrom utils setTxtProgressBar
+#' @importFrom utils txtProgressBar
+#' @importFrom xml2 read_html
+
+
 rorpy <- function(url){
   # number urls 
   n_urls   <- length(url)
   # set the output table format
-  pred_df  <- tibble::tibble(r = numeric(), py = numeric(), other = numeric())
+  pred_df  <- tibble(r = numeric(), py = numeric(), other = numeric())
   # set a progress bar - useful if more than 1 url specified
   if(n_urls > 1) pb  <- txtProgressBar(min = 0, max = n_urls, style = 3)
   # loop over urls one by one
@@ -14,30 +40,12 @@ rorpy <- function(url){
     # attempt to read url using guessed encoding
     x        <- try(read_html(url[i], encoding = enc), silent = T)
     if(!"try-error" %in% class(x)){
-      # combine pre, code and text area tags
-      pre_tags  <- html_text(html_nodes(x, "pre"))
-      code_tags <- html_text(html_nodes(x, "code"))
-      area_tags <- html_text(html_nodes(x, "textarea"))
-      code      <- c(pre_tags, code_tags, area_tags)
-      # remove everything between # and \n - these are usually comments
-      code <- gsub("#.*?\n", " ", code)
-      # split by \n
-      code <- unlist(strsplit(code, "\n"))
-      # remove \r code
-      code <- paste(gsub("\r", "", code), collapse = " ")
+      code <- get_code_text(x)
       # if there is anything left attempt to classify it
       if(nchar(code) > 0){
         # get the number of occurences of certain syntaxes
-        items <- c(" = ", "==",  "<-", "::", ";",  "\\.", "%>%", "\\(\\)", "\\(", "\\)", 
-                   "\\[", "\\]", "\\[\\[", "\\]\\]", "__", "_", "\\[\\]", "\\{", "\\}", "\\{\\}", 
-                   "library", "import", "numpy", "from", "pandas", "as", "\\[0\\]", "\\.py", 
-                   "scipy", "require\\((.*?)\\)", "library\\((.*?)\\)", "def ", "fileimport", 
-                   "\\$", "geom_", "\\((.*?)\\)", "install.packages\\((.*?)\\)", "\\[(.*?)\\]", 
-                   "plot\\((.*?)\\)", "\\~", "function\\((.*?)\\)", "\\+", "%\\*%", "apply", 
-                   " c\\((.*?)\\)")
-        # count up the number of occurences of the patterns above
-        xout           <- as.data.frame(t(str_count(code, items)))
-        colnames(xout) <- items
+        xout           <- get_text_features(code)
+        # predict probability of content being 
         pred_out       <- rev(as.numeric(predict(ft, xout, type = "prob")))
       } else { 
         pred_out       <- rep(0, 3)
