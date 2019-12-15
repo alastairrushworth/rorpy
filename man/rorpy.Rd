@@ -4,10 +4,14 @@
 \alias{rorpy}
 \title{R or Python?  Classification of webpages by code content.}
 \usage{
-rorpy(url)
+rorpy(url, show_progress = TRUE)
 }
 \arguments{
-\item{A}{character vector of length n containing urls.}
+\item{url}{Either a character vector containing urls, or a list containing
+\code{xml_document} objects returned by \code{xml2::read_html()}.}
+
+\item{show_progress}{Boolean flag, defaults to \ode{TRUE}.  Whether to show
+progress bar when multiple urls are provided.}
 }
 \value{
 A tibble containing the probability that the input url contains R 
@@ -25,6 +29,6 @@ probability that the code is R, Python or neither.
 \examples{
 # not run:
 # rorpy("https://google.com") # no code here...
-# rorpy("http://dplyr.tidyverse.org") # 99\\\% sure it's R.......  
-# rorpy("https://keras.io") # also about 99\\\% sure it's python
+# rorpy("http://dplyr.tidyverse.org") # 99\\% sure it's R.......  
+# rorpy("https://keras.io") # also about 99\\% sure it's python
 }

@@ -1,5 +1,8 @@
 #' @title R or Python?  Classification of webpages by code content.
-#' @param A character vector of length n containing urls.
+#' @param url Either a character vector containing urls, or a list containing
+#' \code{xml_document} objects returned by \code{xml2::read_html()}.
+#' @param show_progress Boolean flag, defaults to \ode{TRUE}.  Whether to show
+#' progress bar when multiple urls are provided.
 #' @return A tibble containing the probability that the input url contains R 
 #' code (column \code{r}), Python code (column \code{py}) or another code type 
 #' (column \code{other}).  If no code can be found the probability vector will 
@@ -24,21 +27,39 @@
 #' @importFrom xml2 read_html
 
 
-rorpy <- function(url){
-  # number urls 
+rorpy <- function(url, show_progress = TRUE){
+  # check class of input
+  url_class <- class(url)
+  # return error if url_class is not character or list
+  if(!any(url_class %in% c('list', 'character'))){
+    stop('Input should be a character vector of urls, or a list of xml_documents returned from rvest::read_html()')
+  }
+  # number of urls
   n_urls   <- length(url)
-  # set the output table format
-  pred_df  <- tibble(r = numeric(), py = numeric(), other = numeric())
+  # initialise the output table
+  pred_df  <- tibble(r  = numeric(n_urls), 
+                     py = numeric(n_urls), 
+                     other = numeric(n_urls))
   # set a progress bar - useful if more than 1 url specified
-  if(n_urls > 1) pb  <- txtProgressBar(min = 0, max = n_urls, style = 3)
+  if(show_progress){
+    if(n_urls > 1) pb  <- txtProgressBar(min = 0, max = n_urls, style = 3)
+  }
   # loop over urls one by one
-  for(i in 1:length(url)){
-    # default prediction is NAs - this only kept if an error reading url
-    pred_out <- rep(NA, 3)
-    # try to guess the encoding of the webpage
-    enc      <- guess_encoding(url[i])$encoding[1]
-    # attempt to read url using guessed encoding
-    x        <- try(read_html(url[i], encoding = enc), silent = T)
+  for(i in 1:n_urls){
+    # check class of url
+    url_class_i <- class(url[i])
+    # if the input url is a url, then go an fetch the webpage
+    if(url_class_i == 'character'){
+      # default prediction is NAs - this only kept if an error reading url
+      pred_out <- rep(NA, 3)
+      # try to guess the encoding of the webpage
+      enc      <- guess_encoding(url[i])$encoding[1]
+      # attempt to read url using guessed encoding
+      x        <- try(read_html(url[i], encoding = enc), silent = T)
+    } else {
+      # if the input is a list
+      x <- url[[i]]
+    }
     if(!"try-error" %in% class(x)){
       code <- get_code_text(x)
       # if there is anything left attempt to classify it
@@ -52,8 +73,9 @@ rorpy <- function(url){
       }
     }
     pred_df[i, ] <- pred_out
-    if(n_urls > 1) setTxtProgressBar(pb, i)
+    if(show_progress & (n_urls > 1)) setTxtProgressBar(pb, i)
+
   }
-  if(n_urls > 1) close(pb)
+  if(show_progress & (n_urls > 1)) close(pb)
   return(pred_df)
 }
