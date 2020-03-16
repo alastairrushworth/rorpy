@@ -3,7 +3,7 @@ Type: Package
 Title: R or Python? Simple Classification of Webpages by Code Content
 Version: 0.1
 Depends: R (>= 3.0.0)
-Imports: randomForest, rvest, stringr, tibble, xml2
+Imports: progress, randomForest, rvest, stringr, tibble, xml2
 Author: Alastair Rushworth
 Maintainer: Alastair Rushworth <alastairmrushworth@gmail.com>
 Description: Classify whether a webpage contains R or Python code.  Uses a simple pre-trained classifier to assess whether html content tagged 'pre' and 'code' looks like R, Python or another language.
@@ -11,4 +11,4 @@ License: GPL-2
 LazyLoad: yes
 ByteCompile: yes
 Suggests: testthat
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0

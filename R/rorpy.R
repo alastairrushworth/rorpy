@@ -1,7 +1,7 @@
 #' @title R or Python?  Classification of webpages by code content.
 #' @param url Either a character vector containing urls, or a list containing
 #' \code{xml_document} objects returned by \code{xml2::read_html()}.
-#' @param show_progress Boolean flag, defaults to \ode{TRUE}.  Whether to show
+#' @param show_progress Boolean flag, defaults to \code{TRUE}.  Whether to show
 #' progress bar when multiple urls are provided.
 #' @return A tibble containing the probability that the input url contains R 
 #' code (column \code{r}), Python code (column \code{py}) or another code type 
@@ -32,18 +32,17 @@ rorpy <- function(url, show_progress = TRUE){
   url_class <- class(url)
   # return error if url_class is not character or list
   if(!any(url_class %in% c('list', 'character'))){
-    stop('Input should be a character vector of urls, or a list of xml_documents returned from rvest::read_html()')
+    stop('Input should be a character vector of urls, \
+         or a list of xml_documents returned from rvest::read_html()')
   }
   # number of urls
   n_urls   <- length(url)
   # initialise the output table
-  pred_df  <- tibble(r  = numeric(n_urls), 
-                     py = numeric(n_urls), 
+  pred_df  <- tibble(r     = numeric(n_urls), 
+                     py    = numeric(n_urls), 
                      other = numeric(n_urls))
   # set a progress bar - useful if more than 1 url specified
-  if(show_progress){
-    if(n_urls > 1) pb  <- txtProgressBar(min = 0, max = n_urls, style = 3)
-  }
+  if(show_progress) if(n_urls > 1)  pb <- start_progress(prefix = "Checking code: ", total = n_urls)
   # loop over urls one by one
   for(i in 1:n_urls){
     # check class of url
@@ -60,7 +59,7 @@ rorpy <- function(url, show_progress = TRUE){
       # if the input is a list
       x <- url[[i]]
     }
-    if(!"try-error" %in% class(x)){
+    if(!(any(c("try-error", 'logical') %in% class(x)))){
       code <- get_code_text(x)
       # if there is anything left attempt to classify it
       if(nchar(code) > 0){
@@ -71,11 +70,13 @@ rorpy <- function(url, show_progress = TRUE){
       } else { 
         pred_out       <- rep(0, 3)
       }
+    } else {
+      pred_out <- rep(NA, 3)
     }
     pred_df[i, ] <- pred_out
-    if(show_progress & (n_urls > 1)) setTxtProgressBar(pb, i)
-
+    if(show_progress & (n_urls > 1)){
+      update_progress(bar = pb, iter = i, total = n_urls, what = url[i])
+    }
   }
-  if(show_progress & (n_urls > 1)) close(pb)
   return(pred_df)
 }

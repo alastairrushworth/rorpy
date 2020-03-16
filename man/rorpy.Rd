@@ -10,7 +10,7 @@ rorpy(url, show_progress = TRUE)
 \item{url}{Either a character vector containing urls, or a list containing
 \code{xml_document} objects returned by \code{xml2::read_html()}.}
 
-\item{show_progress}{Boolean flag, defaults to \ode{TRUE}.  Whether to show
+\item{show_progress}{Boolean flag, defaults to \code{TRUE}.  Whether to show
 progress bar when multiple urls are provided.}
 }
 \value{

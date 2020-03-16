@@ -2,6 +2,7 @@
 
 export(rorpy)
 import(randomForest)
+importFrom(progress,progress_bar)
 importFrom(rvest,guess_encoding)
 importFrom(rvest,html_nodes)
 importFrom(rvest,html_text)
