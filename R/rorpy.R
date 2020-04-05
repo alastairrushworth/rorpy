@@ -44,13 +44,13 @@ rorpy <- function(url, show_progress = TRUE){
   # set a progress bar - useful if more than 1 url specified
   if(show_progress) if(n_urls > 1)  pb <- start_progress(prefix = "Checking code: ", total = n_urls)
   # loop over urls one by one
-  for(i in 1:n_urls){
+  for(i in seq_along(url)){
     # check class of url
     url_class_i <- class(url[i])
     # if the input url is a url, then go an fetch the webpage
     if(url_class_i == 'character'){
       # default prediction is NAs - this only kept if an error reading url
-      pred_out <- rep(NA, 3)
+      pred_df[i, ] <- NA
       # try to guess the encoding of the webpage
       enc      <- guess_encoding(url[i])$encoding[1]
       # attempt to read url using guessed encoding
@@ -67,13 +67,13 @@ rorpy <- function(url, show_progress = TRUE){
         xout           <- get_text_features(code)
         # predict probability of content being 
         pred_out       <- rev(as.numeric(predict(ft, xout, type = "prob")))
+        for(k in seq_along(pred_out)) pred_df[i, k] <- pred_out[k]
       } else { 
-        pred_out       <- rep(0, 3)
+        pred_df[i, ]  <- 0
       }
     } else {
-      pred_out <- rep(NA, 3)
+      pred_df[i, ]  <- NA
     }
-    pred_df[i, ] <- pred_out
     if(show_progress & (n_urls > 1)){
       update_progress(bar = pb, iter = i, total = n_urls, what = url[i])
     }
