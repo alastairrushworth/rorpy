@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/alastairrushworth/rorpy.svg?branch=master)](https://travis-ci.org/alastairrushworth/rorpy)
+_The code in this repo is no longer maintained - all webpage code inference functionality has been moved to [https://github.com/alastairrushworth/htmldf](https://github.com/alastairrushworth/htmldf)_
 
 # rorpy
 R or Python? Simple Classification of Webpages by Code Content
